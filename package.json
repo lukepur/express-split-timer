@@ -1,0 +1,30 @@
+{
+  "name": "express-split-timer",
+  "version": "0.0.1",
+  "description": "An express utility and middleware generator for gathering accurate intra-route metrics",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec --bail --check-leaks test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lukepur/express-split-timer.git"
+  },
+  "keywords": [
+    "express",
+    "middleware",
+    "timer",
+    "split",
+    "metrics",
+    "route"
+  ],
+  "author": "Luke Purton",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lukepur/express-split-timer/issues"
+  },
+  "homepage": "https://github.com/lukepur/express-split-timer",
+  "dependencies": {
+    "on-headers": "^1.0.0"
+  }
+}
