@@ -34,6 +34,11 @@ module.exports = (function () {
   // Allow splitting the timer as a middleware
   timer.splitRoute = function(key) {
     var self = this;
+
+    if (typeof key !== 'string') {
+      throw new TypeError('express-split-timer: key for timer split must be a string');
+    }
+    
     return function (req, res, next) {
       self.split.call(null, req, key);
       next();
@@ -44,6 +49,10 @@ module.exports = (function () {
     // Check that both args are passed
     if (arguments.length !== 2) {
       throw new Error('express-split-timer: wrong number of arguments for split(req, key)');
+    }
+
+    if (typeof key !== 'string') {
+      throw new TypeError('express-split-timer: key for timer split must be a string');
     }
 
     // Ensure that the timer has been initialized
@@ -87,5 +96,5 @@ function stopTimer (req) {
   }
 
   // Clean up our pollution of the request object
-  this.__est = undefined;
+  req.__est = undefined;
 };
