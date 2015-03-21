@@ -46,7 +46,7 @@ describe('express-split-timer', function() {
       request(app)
         .get('/')
         .end(function() {
-          expect(fn.firstCall.args[0].__startTime).to.equal(0);
+          expect(fn.firstCall.args[0].timings.__startTime).to.equal(0);
           done();
         });
     });
@@ -55,7 +55,7 @@ describe('express-split-timer', function() {
       request(app)
         .get('/')
         .end(function() {
-          expect(fn.firstCall.args[0].__endTime).to.be.above(0);
+          expect(fn.firstCall.args[0].timings.__endTime).to.be.above(0);
           done();
         });
     });
@@ -151,7 +151,7 @@ describe('express-split-timer', function() {
       request(app)
         .get('/')
         .end(function() {
-          var timings = fn.firstCall.args[0];
+          var timings = fn.firstCall.args[0].timings;
           expect(timings.marker).to.be.above(0);
           expect(timings.__endTime).to.be.above(timings.marker);
           done();
@@ -163,7 +163,7 @@ describe('express-split-timer', function() {
       request(app)
         .get('/')
         .end(function() {
-          expect(fn.firstCall.args[0].marker).to.be.undefined;
+          expect(fn.firstCall.args[0].timings.marker).to.be.undefined;
           done();
         });
     });
@@ -231,11 +231,14 @@ describe('express-split-timer', function() {
 
     it('should add key to fn argument', function(done) {
       app.get('/', timer.start(fn), function(req, res, next) {
-        timer.split(req, 'testKey'); next();}, sendOK);
+          timer.split(req, 'testKey'); next();
+        }, 
+        sendOK
+      );
       request(app)
         .get('/')
         .end(function() {
-          var timings = fn.firstCall.args[0];
+          var timings = fn.firstCall.args[0].timings;
           expect(timings.testKey).to.be.above(0);
           expect(timings.__endTime).to.be.above(timings.testKey);
           done();
@@ -244,17 +247,34 @@ describe('express-split-timer', function() {
 
     it('should warn if duplicate key is detected, and overwrite', function(done) {
       var prevErrorCount = stdErrSpy.callCount;
-      app.get('/', timer.start(fn), function(req, res, next) {
-        timer.split(req, 'testKey'); timer.split(req, 'testKey'); next();}, sendOK);
+      app.get('/', timer.start(fn), 
+        function(req, res, next) {
+          timer.split(req, 'testKey');
+          timer.split(req, 'testKey');
+          next();
+        }, 
+        sendOK
+      );
       request(app)
         .get('/')
         .end(function() {
-          var timings = fn.firstCall.args[0];
+          var timings = fn.firstCall.args[0].timings;
           expect(prevErrorCount).to.be.below(stdErrSpy.callCount);
           expect(timings.testKey).to.be.above(0);
           expect(timings.__endTime).to.be.above(timings.testKey);
           done();
         });
+    });
+
+    it('should include the request path', function(done) {
+      app.get('/', timer.start(fn), sendOK);
+      request(app)
+        .get('/')
+        .end(function() {
+          expect(fn.firstCall.args[0].path).to.equal('/');
+          done();
+        });
+      
     });
     
   });

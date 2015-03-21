@@ -107,7 +107,10 @@ function stopTimer (req) {
 
   // Apply callback to results
   if (typeof callback === 'function') {
-    callback.call(this, timings);
+    callback.call(this, {
+      path: req.path,
+      timings: timings
+    });
   }
 
   // Clean up our pollution of the request object
