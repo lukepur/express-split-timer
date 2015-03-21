@@ -1,7 +1,8 @@
 var onHeaders = require('on-headers');
 
 module.exports = (function () {
-  var timer = {};
+  var timer = {},
+      opts = {};
 
   timer.start = function (callback) {
     // Return a middleware - timer start must be registered as a middleware
@@ -35,11 +36,13 @@ module.exports = (function () {
   timer.splitRoute = function(key) {
     var self = this;
 
-    if (typeof key !== 'string') {
-      throw new TypeError('express-split-timer: key for timer split must be a string');
-    }
-    
     return function (req, res, next) {
+      if (typeof key !== 'string') {
+        if (!opts.suppressErrors) {
+          return next(new TypeError('express-split-timer: key for timer split must be a string'));
+        }
+        return next();
+      }
       self.split.call(null, req, key);
       next();
     };
@@ -48,18 +51,27 @@ module.exports = (function () {
   timer.split = function split (req, key) {
     // Check that both args are passed
     if (arguments.length !== 2) {
-      throw new Error('express-split-timer: wrong number of arguments for split(req, key)');
+      if (!opts.suppressErrors) {
+        throw new Error('express-split-timer: wrong number of arguments for split(req, key)');
+      }
+      return;
     }
 
     if (typeof key !== 'string') {
-      throw new TypeError('express-split-timer: key for timer split must be a string');
+      if (!opts.suppressErrors) {
+        throw new TypeError('express-split-timer: key for timer split must be a string');
+      }
+      return;
     }
 
     // Ensure that the timer has been initialized
     if (!req.__est) {
-      throw new Error('express-split-timer: split() called for unstarted timer. ' +
-        'Ensure that express-split-timer.start() middleware is registered prior to ' +
-        'calling split()');
+      if (!opts.suppressErrors) {
+        throw new Error('express-split-timer: split() called for unstarted timer. ' +
+          'Ensure that express-split-timer.start() middleware is registered prior to ' +
+          'calling split()');
+      }
+      return;
     }
 
     // Warn if a duplicate timing key is used
@@ -72,7 +84,10 @@ module.exports = (function () {
   }
 
   // Export:
-  return timer;
+  return function(options) {
+    opts = options || opts;
+    return timer;
+  };
 }());
 
 
