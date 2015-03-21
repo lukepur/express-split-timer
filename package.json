@@ -1,6 +1,6 @@
 {
   "name": "express-split-timer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An express utility and middleware generator for gathering accurate intra-route metrics",
   "main": "index.js",
   "scripts": {
